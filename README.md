@@ -1,24 +1,26 @@
-# Mask2Former Floorplan Web Demo
+# Mask2Former ADE20K Web Demo
 
-建設図面向けに、推論前後を比較可視化する `Next.js + FastAPI` デモです。
+ADE20K公式重みの `Mask2Former` を使って、推論前後の可視化・画像選択推論・指標表示を行う `Next.js + FastAPI` デモです。
 
 ## What this proves
 
 - Web実装力: 画像アップロード、推論API連携、可視化UI
-- MLキャッチアップ力: Mask2Formerの学習済み重みを切り替えて挙動を比較
-- 実務感: モデルの信頼度を「公式/コミュニティ」で明示
+- MLキャッチアップ力: Mask2Formerの公式学習済み重みで推論・評価
+- 実務感: テスト画像選択→HTTP推論→可視化保存までの一連経路を検証
 
 ## Model status (important)
 
 - `ade20k_official`
   - Hugging Face: `facebook/mask2former-swin-large-ade-semantic`
   - 公式のMask2Former公開重み（ADE20K）
-- `floorplan_community`
-  - Hugging Face: `Hyunwoo1605/mask2former-floorplan-instance-segmentation`
-  - 図面向けのコミュニティ重み（本番利用前に検証必須）
 
-`CubiCasa5K` / `Structured3D` そのものの「公式Mask2Former重み」は見つけにくいため、
-本デモは公式重み+コミュニティ重みの比較構成にしています。
+現在の実装は `ade20k_official` のみを使用します。
+
+## Project path
+
+```bash
+/Users/yutaakase/Documents/GitHub/mask2former_web
+```
 
 ## Run backend
 
@@ -29,7 +31,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 cp env.template .env
 # Edit .env and set GEMINI_API_KEY manually
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 uvicorn app.main:app --host 127.0.0.1 --port 18000
 ```
 
 ## Download ADE20K test images (bulk)
@@ -45,10 +47,10 @@ python scripts/download_test_images.py --count 100
 ```bash
 cd frontend
 npm install
-NEXT_PUBLIC_API_BASE=http://localhost:8000 npm run dev
+NEXT_PUBLIC_API_BASE=http://127.0.0.1:18000 npm run dev -- --hostname 127.0.0.1 --port 13000
 ```
 
-Open: `http://localhost:3000`
+Open: `http://127.0.0.1:13000`
 
 ## Backend env for Gemini
 
@@ -61,6 +63,8 @@ Open: `http://localhost:3000`
 ## API
 
 - `GET /models`: 利用可能モデル一覧
+- `GET /test-images`: ギャラリー表示用のテスト画像一覧
+- `POST /predict-by-id`: ギャラリーで選択した画像IDで推論
 - `POST /predict`:
   - form-data: `file`, `model_key`
   - returns: 推論時間、推論前画像URL、オーバーレイ画像URL、検出クラス
@@ -70,6 +74,7 @@ Open: `http://localhost:3000`
 ```bash
 cd backend
 source .venv/bin/activate
+HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
 python scripts/run_inference_check.py --limit 3
 ```
 
