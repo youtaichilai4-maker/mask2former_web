@@ -1,0 +1,26 @@
+# Python
+backend/.venv/
+backend/.pytest_cache/
+backend/**/__pycache__/
+backend/**/*.pyc
+
+# Backend runtime artifacts
+backend/app/static/results/
+backend/app/static/test_images/*.zip
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/test-results/
+
+# OS/editor
+.DS_Store
+.cursor/
+
+# Secrets / local env
+backend/.env
+backend/.env.*
+frontend/.env
+frontend/.env.*
+
+backend/app/static/test_images/ADEChallengeData2016/

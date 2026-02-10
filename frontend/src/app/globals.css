@@ -1,0 +1,79 @@
+:root {
+  --bg: #f8f6f2;
+  --card: #ffffff;
+  --line: #dfd8cd;
+  --ink: #1c1917;
+  --muted: #6b645f;
+  --accent: #166534;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "IBM Plex Sans", "Noto Sans JP", sans-serif;
+  background: radial-gradient(circle at top left, #efe7da, var(--bg) 40%);
+  color: var(--ink);
+}
+
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+h1 {
+  font-size: 1.8rem;
+  margin-bottom: 4px;
+}
+
+p {
+  margin-top: 0;
+  color: var(--muted);
+}
+
+.grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.controls {
+  display: grid;
+  gap: 10px;
+}
+
+button {
+  border: 0;
+  background: var(--accent);
+  color: white;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+}
+
+small {
+  color: var(--muted);
+}
