@@ -1,40 +1,31 @@
-# Mask2Former ADE20K Web Demo
+# mask2former_web メモ
 
-<<<<<<< HEAD
-ADE20K公式重みの `Mask2Former` を使って、推論前後の可視化・画像選択推論・指標表示を行う `Next.js + FastAPI` デモです。
-=======
-Mask2Formerモデルのキャッチアップのために推論前後を比較可視化する `Next.js + FastAPI` システムを簡単に作ってみました。（モデル推論はpytorch）
->>>>>>> b51ab67a31fb83d09b5ff3d9af6c455f115601d9
+このディレクトリは **Mask2Former モデルを使った推論フローのキャッチアップ** が目的。
+やりたいことは、
 
+- フロントで画像を選ぶ/アップロードする
+- FastAPI で推論を呼ぶ
+- 推論結果（オーバーレイ、クラス面積など）を確認する
 
-<<<<<<< HEAD
-- Web実装力: 画像アップロード、推論API連携、可視化UI
-- MLキャッチアップ力: Mask2Formerの公式学習済み重みで推論・評価
-- 実務感: テスト画像選択→HTTP推論→可視化保存までの一連経路を検証
-=======
->>>>>>> b51ab67a31fb83d09b5ff3d9af6c455f115601d9
+までを一気通貫で追うこと。
 
-## Model status 
-
-- `ade20k_official`
-  - Hugging Face: `facebook/mask2former-swin-large-ade-semantic`
-  - 公式のMask2Former公開重み（ADE20K）
-
-<<<<<<< HEAD
-現在の実装は `ade20k_official` のみを使用します。
-
-## Project path
+## プロジェクト場所
 
 ```bash
 /Users/yutaakase/Documents/GitHub/mask2former_web
 ```
-=======
 
+## 使用モデル
 
+- `ade20k_official`
+  - Hugging Face: `facebook/mask2former-swin-large-ade-semantic`
+  - ADE20K 用の公式重み
 
->>>>>>> b51ab67a31fb83d09b5ff3d9af6c455f115601d9
+今の実装はこのモデルキー固定で使う。
 
-## Run backend
+## 起動手順（最短）
+
+### 1) Backend 起動
 
 ```bash
 cd backend
@@ -42,19 +33,14 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 cp env.template .env
-# Edit .env and set GEMINI_API_KEY manually
+
+# 必要なら .env に GEMINI_API_KEY を入れる
 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 uvicorn app.main:app --host 127.0.0.1 --port 18000
 ```
 
-## Download ADE20K test images (bulk)
+API docs: `http://127.0.0.1:18000/docs`
 
-```bash
-cd backend
-source .venv/bin/activate
-python scripts/download_test_images.py --count 100
-```
-
-## Run frontend
+### 2) Frontend 起動
 
 ```bash
 cd frontend
@@ -62,42 +48,82 @@ npm install
 NEXT_PUBLIC_API_BASE=http://127.0.0.1:18000 npm run dev -- --hostname 127.0.0.1 --port 13000
 ```
 
-Open: `http://127.0.0.1:13000`
+画面: `http://127.0.0.1:13000`
 
-## Backend env for Gemini
+## テスト画像の準備
 
-- `GEMINI_API_KEY`: Gemini API key (required)
-- `GEMINI_ENABLED`: `true` or `false` (default: `true`)
-- `GEMINI_MODEL`: Gemini model name (default: `gemini-2.0-flash`)
-- `GEMINI_API_BASE`: API base URL (default: `https://generativelanguage.googleapis.com/v1beta/models`)
-- `GEMINI_TIMEOUT_SEC`: request timeout in seconds (default: `20`)
-
-## API
-
-- `GET /models`: 利用可能モデル一覧
-<<<<<<< HEAD
-- `GET /test-images`: ギャラリー表示用のテスト画像一覧
-- `POST /predict-by-id`: ギャラリーで選択した画像IDで推論
-- `POST /predict`:
-=======
-- `POST /predict/id`:
->>>>>>> b51ab67a31fb83d09b5ff3d9af6c455f115601d9
-  - form-data: `file`, `model_key`
-  - returns: 推論時間、推論前画像URL、オーバーレイ画像URL、検出クラス
-
-## CLI inference check
+ADE20K の validation 画像をローカルに落とすと、ギャラリー推論ですぐ試せる。
 
 ```bash
 cd backend
 source .venv/bin/activate
-HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
-python scripts/run_inference_check.py --limit 3
+python scripts/download_test_images.py --count 100
 ```
 
-This runs inference over local `app/static/test_images` and prints a per-image summary to CLI.
+出力先: `backend/app/static/test_images`
 
-## Notes for MacBook Air
+## API メモ
 
-- 推論は `mps` -> `cuda` -> `cpu` の順で自動選択
-- フル学習は重いので、このデモは推論中心
-- まず顧客図面で失敗パターンを集め、入社後にチューニング計画へつなぐ想定
+ベース URL: `http://127.0.0.1:18000`
+
+- `GET /health`
+  - ヘルスチェック
+- `GET /models`
+  - 利用可能モデル一覧
+- `GET /test-images`
+  - ギャラリー用の画像一覧
+- `POST /predict`
+  - アップロード画像で推論
+  - `multipart/form-data`: `file`, `model_key`（省略時 `ade20k_official`）
+- `POST /predict-by-id`
+  - テスト画像IDで推論
+  - JSON body: `{ "image_id": "..." }`
+- `POST /describe`
+  - 推論結果の要約文を生成
+  - JSON body: `{ "top_classes": [...], "area_stats": [...], "inference_ms": number|null }`
+
+## ざっくりディレクトリ構造
+
+```text
+mask2former_web/
+├── backend/
+│   ├── app/
+│   │   ├── main.py                  # FastAPI エントリ
+│   │   ├── core/config.py           # 定数・パス・モデルキー定義
+│   │   ├── models/registry.py       # モデル管理
+│   │   ├── services/                # 推論・可視化・説明文生成のロジック
+│   │   └── static/
+│   │       ├── test_images/         # テスト入力画像
+│   │       └── results/             # 推論結果画像（orig/overlay/mask）
+│   ├── scripts/
+│   │   ├── download_test_images.py  # ADE20K画像の一括DL
+│   │   └── run_inference_check.py   # CLIでの推論疎通確認
+│   ├── tests/
+│   ├── requirements.txt
+│   └── env.template
+└── frontend/
+    ├── src/
+    │   ├── app/                     # Next.js App Router
+    │   ├── components/              # UI部品
+    │   ├── hooks/                   # 画面ロジック
+    │   ├── lib/api.ts               # Backend呼び出し
+    │   └── types/                   # 型定義
+    ├── tests/
+    └── package.json
+```
+
+## CLI で推論だけ確認したい時
+
+```bash
+cd backend
+source .venv/bin/activate
+HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 python scripts/run_inference_check.py --limit 3
+```
+
+`app/static/test_images` を順番に推論して、結果サマリを CLI で確認できる。
+
+## 補足メモ
+
+- 推論デバイスは基本 `mps -> cuda -> cpu` の順で使えるものを選ぶ設計
+- このリポジトリは学習よりも **推論フロー理解** が主目的
+- まずは API 入出力と可視化の流れを把握するのを優先
