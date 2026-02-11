@@ -1,19 +1,26 @@
 # Mask2Former ADE20K Web Demo
 
+<<<<<<< HEAD
 ADE20K公式重みの `Mask2Former` を使って、推論前後の可視化・画像選択推論・指標表示を行う `Next.js + FastAPI` デモです。
+=======
+Mask2Formerモデルのキャッチアップのために推論前後を比較可視化する `Next.js + FastAPI` システムを簡単に作ってみました。（モデル推論はpytorch）
+>>>>>>> b51ab67a31fb83d09b5ff3d9af6c455f115601d9
 
-## What this proves
 
+<<<<<<< HEAD
 - Web実装力: 画像アップロード、推論API連携、可視化UI
 - MLキャッチアップ力: Mask2Formerの公式学習済み重みで推論・評価
 - 実務感: テスト画像選択→HTTP推論→可視化保存までの一連経路を検証
+=======
+>>>>>>> b51ab67a31fb83d09b5ff3d9af6c455f115601d9
 
-## Model status (important)
+## Model status 
 
 - `ade20k_official`
   - Hugging Face: `facebook/mask2former-swin-large-ade-semantic`
   - 公式のMask2Former公開重み（ADE20K）
 
+<<<<<<< HEAD
 現在の実装は `ade20k_official` のみを使用します。
 
 ## Project path
@@ -21,6 +28,11 @@ ADE20K公式重みの `Mask2Former` を使って、推論前後の可視化・�
 ```bash
 /Users/yutaakase/Documents/GitHub/mask2former_web
 ```
+=======
+
+
+
+>>>>>>> b51ab67a31fb83d09b5ff3d9af6c455f115601d9
 
 ## Run backend
 
@@ -63,9 +75,13 @@ Open: `http://127.0.0.1:13000`
 ## API
 
 - `GET /models`: 利用可能モデル一覧
+<<<<<<< HEAD
 - `GET /test-images`: ギャラリー表示用のテスト画像一覧
 - `POST /predict-by-id`: ギャラリーで選択した画像IDで推論
 - `POST /predict`:
+=======
+- `POST /predict/id`:
+>>>>>>> b51ab67a31fb83d09b5ff3d9af6c455f115601d9
   - form-data: `file`, `model_key`
   - returns: 推論時間、推論前画像URL、オーバーレイ画像URL、検出クラス
 
